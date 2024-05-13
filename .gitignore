@@ -2,3 +2,13 @@ vendor
 composer.lock
 phpmd.phar
 nbproject
+.buildpath
+.settings
+.project
+nbproject
+/nbproject/private/
+.phpunit.result.cache
+/build
+*.bak
+.phpunit.cache
+phpunit.xml
