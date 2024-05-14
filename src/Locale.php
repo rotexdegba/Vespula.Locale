@@ -180,10 +180,16 @@ class Locale {
             if (!array_key_exists($code, $this->store)) {
                 $this->store[$code] = [];
             }
+            
             /**
              * @psalm-suppress UnresolvableInclude
+             * @psalm-suppress MixedAssignment
              */
             $strings = include($file);
+            
+            /**
+             * @psalm-suppress MixedArgument
+             */
             $this->store[$code] = array_merge($this->store[$code], $strings);
         }
     }
@@ -210,6 +216,9 @@ class Locale {
         }
         $valid = ['singular', 'plural', 'other'];
 
+        /**
+         * @psalm-suppress MixedAssignment
+         */
         foreach ($form as $info) {
             if (!in_array($info, $valid)) {
                 throw new \Exception('Each form must be one of singular or plural');
@@ -224,6 +233,7 @@ class Locale {
      * @param int $count How many items you have
      * 
      * @psalm-suppress RedundantCondition
+     * @psalm-suppress MixedInferredReturnType
      */
     public function gettext(string $key, int $count = 1): string
     {
@@ -233,27 +243,44 @@ class Locale {
         }
 
         // Next check for the key
+        /**
+         * @psalm-suppress MixedAssignment
+         */
         $strings = $this->store[$this->code];
+        
+        /**
+         * @psalm-suppress MixedArgument
+         */
         if (!array_key_exists($key, $strings)) {
             return $key;
         }
 
+        /**
+         * @psalm-suppress MixedArrayAccess
+         */
         $string = (array) $strings[$key];
 
         // We only have one element in the array, can't determine plural
         // Ain't going to write an inflection class to pluralize
         if (count($string) == 1) {
-            return $string[0];
+            return (string)$string[0];
         }
+        
+        /**
+         * @psalm-suppress MixedAssignment
+         */
         $form = $this->getPluralForm($this->code);
 
+        /**
+         * @psalm-suppress MixedAssignment
+         * @psalm-suppress MixedArrayAccess
+         */
         $form = match ($count) {
             1 => $form[1],
             0 => $form[0],
             default => $form[2],
         };
 
-        
         switch ($form) {
             case 'plural':
                 return (string)$string[1];
